@@ -12,6 +12,11 @@ server.get('/bandas', (req,res) =>{
     return res.json(bandas);
 });
 
+//middleware global
+server.use((req, res) => {
+    console.log('requisição chamada');
+});
+
 //localhost:3000/api
 server.get('/bandas/:index', (req, res)=>{
     const { index } = req.params;
@@ -34,6 +39,14 @@ server.put('/bandas/:index', (req, res)=>{
 
     bandas[index] = nome;
 
+    return res.json(bandas);
+});
+
+//excluindo banda
+server.delete('/bandas/:index', (req, res) =>{
+    const { index } = req.params;
+
+    bandas.splice(index, 1);
     return res.json(bandas);
 });
 
