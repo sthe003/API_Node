@@ -13,8 +13,10 @@ server.get('/bandas', (req,res) =>{
 });
 
 //middleware global
-server.use((req, res) => {
+server.use((req, res, next) => {
     console.log('requisição chamada');
+
+    return next();
 });
 
 //localhost:3000/api
