@@ -5,19 +5,38 @@ const server = express();
 server.use(express.json());
 
 
-//listagem inicial de bandas
-const bandas = ['System of a down', 'Limp bizkit', 'Korn', 'Gojira']
-
-server.get('/bandas', (req,res) =>{
-    return res.json(bandas);
-});
-
 //middleware global
 server.use((req, res, next) => {
-    console.log('requisição chamada');
+    console.log(`requisição chamada: ${req.url}`);
 
     return next();
 });
+
+//middleware funcao
+function checkBanda(req, res, next){
+    if(!req.body.nome){
+        return res.status(400).json({error: "É necessário informar o nome da banda"})
+    }
+
+    return next();
+}
+
+function checkIndexBanda (req,res,next){
+    const banda = bandas[req.params.index]
+    if(!banda){
+        return res.status(400).json({error: "A banda não existe"});
+    }
+    return next();
+}
+
+
+//listagem inicial de bandas
+const bandas = ['System of a down', 'Limp bizkit', 'Korn', 'Gojira']
+
+server.get('/bandas', checkIndexBanda, (req,res) =>{
+    return res.json(bandas);
+});
+
 
 //localhost:3000/api
 server.get('/bandas/:index', (req, res)=>{
@@ -27,7 +46,7 @@ return res.json(bandas[index]);
 });
 
 //adicionando novas bandas
-server.post('/bandas', (req, res) =>{
+server.post('/bandas', checkBanda, (req, res) =>{
     const { nome } = req.body;
     bandas.push(nome);
 
@@ -35,7 +54,7 @@ server.post('/bandas', (req, res) =>{
 });
 
 //atualizando as bandas
-server.put('/bandas/:index', (req, res)=>{
+server.put('/bandas/:index',  checkBanda, checkIndexBanda, (req, res)=>{
     const { index } = req.params;
     const { nome } = req.body;
 
@@ -45,7 +64,7 @@ server.put('/bandas/:index', (req, res)=>{
 });
 
 //excluindo banda
-server.delete('/bandas/:index', (req, res) =>{
+server.delete('/bandas/:index', checkIndexBanda, (req, res) =>{
     const { index } = req.params;
 
     bandas.splice(index, 1);
